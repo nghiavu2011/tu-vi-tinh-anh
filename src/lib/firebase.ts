@@ -1,10 +1,8 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getAnalytics } from "firebase/analytics";
 
-// Hướng dẫn: Bạn cần tạo một dự án Firebase tại https://console.firebase.google.com/
-// Sau đó copy cấu hình vào đây. Cho đến lúc đó, tôi sẽ dùng biến môi trường hoặc placeholder.
+// Cấu hình Firebase - Người dùng sẽ tự điền vào đây hoặc dùng env
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "YOUR_API_KEY",
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "YOUR_AUTH_DOMAIN",
@@ -12,29 +10,32 @@ const firebaseConfig = {
     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "YOUR_STORAGE_BUCKET",
     messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "YOUR_MESSAGING_SENDER_ID",
     appId: import.meta.env.VITE_FIREBASE_APP_ID || "YOUR_APP_ID",
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "YOUR_MEASUREMENT_ID"
 };
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const googleProvider = new GoogleAuthProvider();
 
-// Analytics chỉ chạy trên browser
-let analytics;
-if (typeof window !== "undefined") {
-    analytics = getAnalytics(app);
-}
-export { analytics };
-
-export const loginWithGoogle = async () => {
+export const registerUser = async (email: string, pass: string, name: string) => {
     try {
-        const result = await signInWithPopup(auth, googleProvider);
-        return result.user;
+        const res = await createUserWithEmailAndPassword(auth, email, pass);
+        await updateProfile(res.user, { displayName: name });
+        return res.user;
     } catch (error) {
-        console.error("Error logging in:", error);
+        console.error("Register error:", error);
+        throw error;
+    }
+};
+
+export const loginUser = async (email: string, pass: string) => {
+    try {
+        const res = await signInWithEmailAndPassword(auth, email, pass);
+        return res.user;
+    } catch (error) {
+        console.error("Login error:", error);
         throw error;
     }
 };
 
 export const logout = () => signOut(auth);
+

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../src/context/AuthContext';
-import { loginWithGoogle, logout, db } from '../src/lib/firebase';
+import { loginUser, registerUser, logout, db } from '../src/lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const Header: React.FC = () => {
@@ -9,14 +9,20 @@ const Header: React.FC = () => {
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState<boolean>(false);
 
+  // Auth Modal State
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [authError, setAuthError] = useState('');
+
   useEffect(() => {
     const fetchKey = async () => {
-      // 1. Check localStorage first
       const localKey = localStorage.getItem('GEMINI_API_KEY');
       if (localKey) {
         setHasKey(true);
       } else if (user) {
-        // 2. If logged in and no local key, check Firestore
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists() && userDoc.data().apiKey) {
@@ -35,11 +41,21 @@ const Header: React.FC = () => {
     }
   }, [user, loading]);
 
-  const scrollToInput = (e: React.MouseEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    const element = document.getElementById('input-area');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    setAuthError('');
+    try {
+      if (isRegistering) {
+        await registerUser(email, password, name);
+      } else {
+        await loginUser(email, password);
+      }
+      setIsAuthModalOpen(false);
+      setEmail('');
+      setPassword('');
+      setName('');
+    } catch (err: any) {
+      setAuthError(err.message || 'Có lỗi xảy ra, vui lòng kiểm tra lại.');
     }
   };
 
@@ -53,7 +69,6 @@ const Header: React.FC = () => {
       setHasKey(!!trimmedKey);
 
       if (trimmedKey && user) {
-        // Sync to Firestore
         try {
           await setDoc(doc(db, 'users', user.uid), { apiKey: trimmedKey }, { merge: true });
           alert("Đã lưu API Key vào tài khoản của bạn!");
@@ -71,7 +86,6 @@ const Header: React.FC = () => {
       <header className="w-full py-4 px-6 md:px-12 flex justify-between items-center sticky top-0 z-50 glass-liquid transition-all duration-300">
         <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <div className="relative w-11 h-11 flex items-center justify-center bg-white/5 rounded-full shadow-lg border border-mystic-copper/30 group-hover:border-mystic-copper/60 transition-all duration-500">
-            {/* Custom Tu Vi Icon (Yin Yang / Bagua Stylized) */}
             <svg viewBox="0 0 100 100" className="w-8 h-8 text-mystic-copper drop-shadow-[0_0_8px_rgba(253,186,116,0.5)]">
               <defs>
                 <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -116,26 +130,34 @@ const Header: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-2 border border-white/10 rounded-full pr-3 py-0.5 hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-2 border border-white/10 rounded-full pl-1 pr-3 py-0.5 hover:bg-white/5 transition-colors"
                 >
-                  <img src={user.photoURL || ''} alt="avatar" className="w-8 h-8 rounded-full border border-mystic-copper/50" />
-                  <span className="hidden sm:inline lowercase text-[10px] tracking-widest">{user.displayName?.split(' ').pop()}</span>
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-mystic-copper to-orange-200 flex items-center justify-center text-slate-900 font-bold text-xs uppercase shadow-inner">
+                    {user.displayName?.charAt(0) || user.email?.charAt(0) || 'U'}
+                  </div>
+                  <span className="hidden sm:inline lowercase text-[10px] tracking-widest max-w-[80px] truncate">
+                    {user.displayName?.split(' ').pop() || user.email?.split('@')[0]}
+                  </span>
                 </button>
 
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-3 w-48 glass-liquid border border-white/10 rounded-xl overflow-hidden shadow-2xl py-2 animate-fade-in-up">
                     <div className="px-4 py-2 border-b border-white/5 mb-2">
-                      <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+                      <p className="text-[10px] text-slate-400 truncate font-sans lowercase">{user.email}</p>
                     </div>
                     <button
-                      onClick={() => { window.location.hash = 'history'; setIsUserMenuOpen(false); }}
-                      className="w-full text-left px-4 py-2 hover:bg-white/5 text-xs hover:text-mystic-copper transition-colors"
+                      onClick={() => {
+                        const el = document.getElementById('history');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-white/5 text-xs hover:text-mystic-copper transition-colors uppercase tracking-widest font-sans"
                     >
                       Lịch sử xem
                     </button>
                     <button
                       onClick={() => { logout(); setIsUserMenuOpen(false); }}
-                      className="w-full text-left px-4 py-2 hover:bg-white/5 text-xs text-red-400 transition-colors"
+                      className="w-full text-left px-4 py-2 hover:bg-white/5 text-xs text-red-400 transition-colors uppercase tracking-widest font-sans"
                     >
                       Đăng xuất
                     </button>
@@ -144,7 +166,7 @@ const Header: React.FC = () => {
               </div>
             ) : (
               <button
-                onClick={loginWithGoogle}
+                onClick={() => setIsAuthModalOpen(true)}
                 className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-[10px] font-bold tracking-[0.2em] transition-all"
               >
                 Đăng nhập
@@ -153,6 +175,74 @@ const Header: React.FC = () => {
           )}
         </nav>
       </header>
+
+      {/* Auth Modal (Login/Register) */}
+      {isAuthModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-fade-in">
+          <div className="bg-[#0a0f1d] border border-slate-800 rounded-2xl max-w-sm w-full p-8 shadow-2xl relative">
+            <button
+              onClick={() => setIsAuthModalOpen(false)}
+              className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <h3 className="text-2xl font-display font-bold text-white mb-2 uppercase tracking-widest">
+              {isRegistering ? 'Tạo tài khoản' : 'Đăng nhập'}
+            </h3>
+            <p className="text-xs text-slate-500 mb-8 font-sans">Đăng nhập để lưu trữ lịch sử xem tử vi của bạn.</p>
+
+            <form onSubmit={handleAuth} className="space-y-4">
+              {isRegistering && (
+                <div>
+                  <label className="block text-[10px] text-slate-400 uppercase tracking-widest mb-2 px-1">Tên hiển thị</label>
+                  <input
+                    type="text" required value={name} onChange={e => setName(e.target.value)}
+                    placeholder="Nguyễn Văn A"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-mystic-copper transition-colors font-sans"
+                  />
+                </div>
+              )}
+              <div>
+                <label className="block text-[10px] text-slate-400 uppercase tracking-widest mb-2 px-1">Email</label>
+                <input
+                  type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-mystic-copper transition-colors font-sans"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] text-slate-400 uppercase tracking-widest mb-2 px-1">Mật khẩu</label>
+                <input
+                  type="password" required value={password} onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-mystic-copper transition-colors font-sans"
+                />
+              </div>
+
+              {authError && <p className="text-[10px] text-red-400 px-1 font-sans">{authError}</p>}
+
+              <button
+                type="submit"
+                className="w-full py-4 bg-white text-slate-900 font-display font-bold text-xs uppercase tracking-[0.2em] rounded-lg hover:bg-mystic-copper hover:text-white transition-all shadow-[0_4px_15px_rgba(255,255,255,0.1)] mb-4"
+              >
+                {isRegistering ? 'Đăng ký ngay' : 'Vào ứng dụng'}
+              </button>
+            </form>
+
+            <div className="text-center pt-4">
+              <button
+                onClick={() => setIsRegistering(!isRegistering)}
+                className="text-[10px] text-slate-500 hover:text-mystic-copper uppercase tracking-widest font-sans underline underline-offset-4 decoration-white/10"
+              >
+                {isRegistering ? 'Đã có tài khoản? Đăng nhập' : 'Chưa có tài khoản? Đăng ký ngay'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* API Key Instructions Modal */}
       {isHelpOpen && (
