@@ -36,6 +36,39 @@ const HeroSection: React.FC = () => {
       badgeClass: "text-yellow-300",
       descHighlightClass: "text-yellow-400",
       image: "/images/hero-3.png"
+    },
+    {
+      badge: "Trí Tuệ Cổ Nhân & Thời Đại",
+      title: "Thiên Cơ",
+      highlight: "Bất Khả Lộ",
+      subtitle: "Mở Khóa Tương Lai",
+      desc: 'Những bí mật ẩn giấu trong lá số sẽ được AI giải mã, mang lại cái nhìn sâu sắc về những ngã rẽ cuộc đời.',
+      colorClass: "from-emerald-400 via-teal-200 to-emerald-400",
+      badgeClass: "text-emerald-300",
+      descHighlightClass: "text-emerald-400",
+      image: "/images/hero-4.png"
+    },
+    {
+      badge: "Luật Đối Ứng Của Vũ Trụ",
+      title: "Nhân Quả",
+      highlight: "Phúc Đức",
+      subtitle: "Gieo Nhân Gặt Quả",
+      desc: 'Lá số không chỉ là định mệnh, mà còn là gương soi của nghiệp lực. Hiểu để hành thiện, đổi vận từ tâm.',
+      colorClass: "from-red-400 via-rose-300 to-red-400",
+      badgeClass: "text-rose-300",
+      descHighlightClass: "text-rose-400",
+      image: "/images/hero-5.png"
+    },
+    {
+      badge: "Sự Hợp Nhất Của Âm Dương",
+      title: "Thái Cực",
+      highlight: "Vô Biên",
+      subtitle: "Cân Bằng Nội Tại",
+      desc: 'Tìm về sự tĩnh lặng và cân bằng giữa dòng đời biến động thông qua những triết lý tử vi thâm thúy.',
+      colorClass: "from-indigo-400 via-slate-200 to-indigo-400",
+      badgeClass: "text-slate-300",
+      descHighlightClass: "text-indigo-400",
+      image: "/images/hero-6.png"
     }
   ];
 
