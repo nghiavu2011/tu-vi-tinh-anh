@@ -1,13 +1,39 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../src/context/AuthContext';
+import { loginWithGoogle, logout, db } from '../src/lib/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const Header: React.FC = () => {
+  const { user, loading } = useAuth();
   const [hasKey, setHasKey] = useState<boolean>(false);
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    const key = localStorage.getItem('GEMINI_API_KEY');
-    setHasKey(!!key);
-  }, []);
+    const fetchKey = async () => {
+      // 1. Check localStorage first
+      const localKey = localStorage.getItem('GEMINI_API_KEY');
+      if (localKey) {
+        setHasKey(true);
+      } else if (user) {
+        // 2. If logged in and no local key, check Firestore
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists() && userDoc.data().apiKey) {
+            const apiK = userDoc.data().apiKey;
+            localStorage.setItem('GEMINI_API_KEY', apiK);
+            setHasKey(true);
+          }
+        } catch (e) {
+          console.error("Error fetching key from Firestore:", e);
+        }
+      }
+    };
+
+    if (!loading) {
+      fetchKey();
+    }
+  }, [user, loading]);
 
   const scrollToInput = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -17,13 +43,26 @@ const Header: React.FC = () => {
     }
   };
 
-  const handleSetupKey = () => {
+  const handleSetupKey = async () => {
     const currentKey = localStorage.getItem('GEMINI_API_KEY') || '';
     const newKey = window.prompt("Nhập mã API Google Gemini của bạn:", currentKey);
+
     if (newKey !== null) {
-      localStorage.setItem('GEMINI_API_KEY', newKey.trim());
-      setHasKey(!!newKey.trim());
-      if (newKey.trim()) alert("Đã lưu API Key thành công!");
+      const trimmedKey = newKey.trim();
+      localStorage.setItem('GEMINI_API_KEY', trimmedKey);
+      setHasKey(!!trimmedKey);
+
+      if (trimmedKey && user) {
+        // Sync to Firestore
+        try {
+          await setDoc(doc(db, 'users', user.uid), { apiKey: trimmedKey }, { merge: true });
+          alert("Đã lưu API Key vào tài khoản của bạn!");
+        } catch (e) {
+          console.error("Error syncing to Firestore:", e);
+        }
+      } else if (trimmedKey) {
+        alert("Đã lưu API Key thành công!");
+      }
     }
   };
 
@@ -72,14 +111,46 @@ const Header: React.FC = () => {
             </button>
           </div>
 
-          <a href="#input-area" onClick={scrollToInput} className="hover:text-mystic-copper transition-colors relative group">
-            Luận Giải
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-mystic-copper group-hover:w-full transition-all duration-300"></span>
-          </a>
-          <a href="https://thienluong.net/" target="_blank" rel="noopener noreferrer" className="hover:text-mystic-copper transition-colors relative group hidden sm:block">
-            Lấy Lá Số
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-mystic-copper group-hover:w-full transition-all duration-300"></span>
-          </a>
+          {!loading && (
+            user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center gap-2 border border-white/10 rounded-full pr-3 py-0.5 hover:bg-white/5 transition-colors"
+                >
+                  <img src={user.photoURL || ''} alt="avatar" className="w-8 h-8 rounded-full border border-mystic-copper/50" />
+                  <span className="hidden sm:inline lowercase text-[10px] tracking-widest">{user.displayName?.split(' ').pop()}</span>
+                </button>
+
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-3 w-48 glass-liquid border border-white/10 rounded-xl overflow-hidden shadow-2xl py-2 animate-fade-in-up">
+                    <div className="px-4 py-2 border-b border-white/5 mb-2">
+                      <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+                    </div>
+                    <button
+                      onClick={() => { window.location.hash = 'history'; setIsUserMenuOpen(false); }}
+                      className="w-full text-left px-4 py-2 hover:bg-white/5 text-xs hover:text-mystic-copper transition-colors"
+                    >
+                      Lịch sử xem
+                    </button>
+                    <button
+                      onClick={() => { logout(); setIsUserMenuOpen(false); }}
+                      className="w-full text-left px-4 py-2 hover:bg-white/5 text-xs text-red-400 transition-colors"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={loginWithGoogle}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-[10px] font-bold tracking-[0.2em] transition-all"
+              >
+                Đăng nhập
+              </button>
+            )
+          )}
         </nav>
       </header>
 

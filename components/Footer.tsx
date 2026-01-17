@@ -4,53 +4,54 @@ const Footer: React.FC = () => {
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false);
 
   return (
-    <footer className="w-full bg-black/40 backdrop-blur-md border-t border-white/5 pt-12 pb-8 mt-20 relative overflow-hidden">
+    <>
+      <footer className="w-full bg-black/40 backdrop-blur-md border-t border-white/5 pt-12 pb-8 mt-20 relative">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8 text-center md:text-left">
+            {/* Brand */}
+            <div className="space-y-2">
+              <h3 className="text-xl font-display font-bold text-white tracking-widest">TỬ VI TINH ANH</h3>
+              <p className="text-slate-400 text-xs font-serif font-light italic">
+                "Thấu hiểu bản thân là khởi nguồn của mọi trí tuệ."
+              </p>
+            </div>
 
-      <div className="container mx-auto px-6">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8 text-center md:text-left">
-          {/* Brand */}
-          <div className="space-y-2">
-            <h3 className="text-xl font-display font-bold text-white tracking-widest">TỬ VI TINH ANH</h3>
-            <p className="text-slate-400 text-xs font-serif font-light italic">
-              "Thấu hiểu bản thân là khởi nguồn của mọi trí tuệ."
+            {/* Social */}
+            <div className="flex flex-col items-center md:items-end gap-3">
+              <h4 className="text-mystic-copper font-display font-bold text-[10px] uppercase tracking-[0.3em]">Kết Nối Tâm Linh</h4>
+              <a
+                href="https://www.youtube.com/@Thienluongtuvi"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-2 text-slate-400 hover:text-red-500 transition-all duration-300"
+              >
+                <span className="text-[10px] font-sans font-bold uppercase tracking-widest group-hover:mr-1 transition-all">YouTube</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                  <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-slate-500 text-[10px] font-sans font-medium tracking-widest uppercase text-center md:text-left">
+              © 2026 TỬ VI TINH ANH. SẢN PHẨM ĐƯỢC PHÁT TRIỂN BỞI <span className="text-mystic-copper">ANDY AI</span>
             </p>
-          </div>
 
-          {/* Social */}
-          <div className="flex flex-col items-center md:items-end gap-3">
-            <h4 className="text-mystic-copper font-display font-bold text-[10px] uppercase tracking-[0.3em]">Kết Nối Tâm Linh</h4>
-            <a
-              href="https://www.youtube.com/@Thienluongtuvi"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-2 text-slate-400 hover:text-red-500 transition-all duration-300"
+            <button
+              onClick={() => setIsDisclaimerOpen(true)}
+              className="text-[10px] text-slate-500 hover:text-mystic-copper font-sans font-medium tracking-widest uppercase transition-colors underline decoration-slate-500/30 underline-offset-4"
             >
-              <span className="text-[10px] font-sans font-bold uppercase tracking-widest group-hover:mr-1 transition-all">YouTube</span>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
-              </svg>
-            </a>
+              Miễn trừ trách nhiệm
+            </button>
           </div>
         </div>
+      </footer>
 
-        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-slate-500 text-[10px] font-sans font-medium tracking-widest uppercase text-center md:text-left">
-            © 2026 TỬ VI TINH ANH. SẢN PHẨM ĐƯỢC PHÁT TRIỂN BỞI <span className="text-mystic-copper">ANDY AI</span>
-          </p>
-
-          <button
-            onClick={() => setIsDisclaimerOpen(true)}
-            className="text-[10px] text-slate-500 hover:text-mystic-copper font-sans font-medium tracking-widest uppercase transition-colors underline decoration-slate-500/30 underline-offset-4"
-          >
-            Miễn trừ trách nhiệm
-          </button>
-        </div>
-      </div>
-
-      {/* Disclaimer Modal */}
+      {/* Disclaimer Modal - Moved outside to avoid stacking context issues with blurred footer */}
       {isDisclaimerOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-6 animate-fade-in">
-          <div className="bg-[#0a0f1d] border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-8 shadow-2xl relative">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-md p-6 animate-fade-in">
+          <div className="bg-[#0a0f1d] border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-8 shadow-2xl relative scrollbar-hide">
             <button
               onClick={() => setIsDisclaimerOpen(false)}
               className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full"
@@ -100,7 +101,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
       )}
-    </footer>
+    </>
   );
 };
 
