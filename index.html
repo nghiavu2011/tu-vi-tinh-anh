@@ -198,6 +198,7 @@
   <div class="stars-layer" id="stars-small"></div>
   <div class="stars-layer" id="stars-medium"></div>
   <div class="stars-layer" id="stars-large"></div>
+  <div id="meteors-container" class="fixed inset-0 pointer-events-none z-0"></div>
 
   <script>
     function createStars(containerId, count, className) {
@@ -214,10 +215,41 @@
       }
     }
 
+    function createMeteor() {
+      const container = document.getElementById('meteors-container');
+      if (!container) return;
+
+      const meteor = document.createElement('div');
+      meteor.className = 'meteor';
+
+      // Random position start (mostly top/right)
+      const startX = Math.random() * window.innerWidth + 200;
+      meteor.style.left = `${startX}px`;
+      meteor.style.top = `${Math.random() * -100}px`;
+
+      const duration = Math.random() * 1 + 0.5; // 0.5 - 1.5s
+      meteor.style.animationDuration = `${duration}s`;
+
+      container.appendChild(meteor);
+
+      // Remove after animation
+      setTimeout(() => {
+        meteor.remove();
+      }, duration * 1000);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       createStars('stars-small', 150, 'small');
       createStars('stars-medium', 50, 'medium');
       createStars('stars-large', 15, 'large');
+
+      // Meteors every 2-4 seconds
+      setInterval(() => {
+        createMeteor();
+      }, 2000);
+      setInterval(() => {
+        if (Math.random() > 0.5) createMeteor();
+      }, 3500);
     });
   </script>
   <script type="module" src="/index.tsx"></script>
