@@ -13,7 +13,7 @@ const HeroSection: React.FC = () => {
       colorClass: "from-mystic-copper via-yellow-200 to-mystic-copper",
       badgeClass: "text-mystic-copper",
       descHighlightClass: "text-mystic-copper",
-      image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2694&auto=format&fit=crop"
+      image: "/images/hero-1.jpg"
     },
     {
       badge: "Khám Phá Bí Ẩn Ngàn Năm",
@@ -24,7 +24,7 @@ const HeroSection: React.FC = () => {
       colorClass: "from-blue-400 via-purple-300 to-blue-400",
       badgeClass: "text-blue-300",
       descHighlightClass: "text-blue-400",
-      image: "https://images.unsplash.com/photo-1510936111838-65e9b5c8069f?q=80&w=2560&auto=format&fit=crop"
+      image: "/images/hero-2.jpg"
     },
     {
       badge: "Tinh Hoa Lý Số Á Đông",
@@ -35,7 +35,7 @@ const HeroSection: React.FC = () => {
       colorClass: "from-yellow-300 via-amber-200 to-yellow-400",
       badgeClass: "text-yellow-300",
       descHighlightClass: "text-yellow-400",
-      image: "https://images.unsplash.com/photo-1628126235206-5260b9ea6443?q=80&w=2574&auto=format&fit=crop"
+      image: "/images/hero-3.jpg"
     }
   ];
 
