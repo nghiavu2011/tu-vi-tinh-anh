@@ -13,7 +13,7 @@ const HeroSection: React.FC = () => {
       colorClass: "from-mystic-copper via-yellow-200 to-mystic-copper",
       badgeClass: "text-mystic-copper",
       descHighlightClass: "text-mystic-copper",
-      image: "/images/hero-1.jpg"
+      image: "/images/hero-1.png"
     },
     {
       badge: "Khám Phá Bí Ẩn Ngàn Năm",
@@ -24,7 +24,7 @@ const HeroSection: React.FC = () => {
       colorClass: "from-blue-400 via-purple-300 to-blue-400",
       badgeClass: "text-blue-300",
       descHighlightClass: "text-blue-400",
-      image: "/images/hero-2.jpg"
+      image: "/images/hero-2.png"
     },
     {
       badge: "Tinh Hoa Lý Số Á Đông",
@@ -35,7 +35,7 @@ const HeroSection: React.FC = () => {
       colorClass: "from-yellow-300 via-amber-200 to-yellow-400",
       badgeClass: "text-yellow-300",
       descHighlightClass: "text-yellow-400",
-      image: "/images/hero-3.jpg"
+      image: "/images/hero-3.png"
     }
   ];
 
